@@ -11,6 +11,8 @@
 // constructor WITHOUT memory allocation
 ChatBot::ChatBot()
 {
+    std::cout << "Constructing without mem allocation\n";
+
     // invalidate data handles
     _image = nullptr;
     _chatLogic = nullptr;
@@ -44,6 +46,65 @@ ChatBot::~ChatBot()
 
 //// STUDENT CODE
 ////
+ChatBot &ChatBot::operator=(const ChatBot &source_chat_bot)
+{
+    // Deep copy
+    std::cout << "Copy assignment operator" << std::endl;
+
+    if (this == &source_chat_bot) {
+        return *this;
+    }
+
+    delete _image;
+    _chatLogic = source_chat_bot._chatLogic;
+    _rootNode = source_chat_bot._rootNode;
+    _image = new wxBitmap(*source_chat_bot._image);
+
+    return *this;
+}
+
+ChatBot::ChatBot(const ChatBot &source_chat_bot)
+{
+    // Deep copy
+    std::cout << "Copy constructor" << std::endl;
+
+    delete _image;
+    _chatLogic = source_chat_bot._chatLogic;
+    _rootNode = source_chat_bot._rootNode;
+    _image = new wxBitmap(*source_chat_bot._image);
+}
+
+ChatBot::ChatBot(ChatBot &&source_chat_bot)
+{
+    std::cout << "Move constructor" << std::endl;
+
+    _image = source_chat_bot._image;
+    _chatLogic = source_chat_bot._chatLogic;
+    _rootNode = source_chat_bot._rootNode;
+
+    source_chat_bot._image = nullptr;
+    source_chat_bot._chatLogic = nullptr;
+    source_chat_bot._rootNode = nullptr;
+}
+
+ChatBot &ChatBot::operator=(ChatBot &&source_chat_bot)
+{
+    std::cout << "Move assignment operator" << std::endl;
+
+    if (this == &source_chat_bot) {
+        return *this;
+    }
+
+    _image = source_chat_bot._image;
+    _chatLogic = source_chat_bot._chatLogic;
+    _rootNode = source_chat_bot._rootNode;
+
+    source_chat_bot._image = nullptr;
+    source_chat_bot._chatLogic = nullptr;
+    source_chat_bot._rootNode = nullptr;
+
+    return *this;
+}
 
 ////
 //// EOF STUDENT CODE
@@ -93,6 +154,7 @@ void ChatBot::SetCurrentNode(GraphNode *node)
     std::uniform_int_distribution<int> dis(0, answers.size() - 1);
     std::string answer = answers.at(dis(generator));
 
+    _chatLogic->SetChatbotHandle(this);
     // send selected node answer to user
     _chatLogic->SendMessageToUser(answer);
 }
